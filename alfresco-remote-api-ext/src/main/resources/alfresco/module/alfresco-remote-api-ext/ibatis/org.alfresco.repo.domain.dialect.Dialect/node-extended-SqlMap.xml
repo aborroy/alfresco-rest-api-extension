@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="alfresco.node">
+
+    <select id="select_SpacesStoreId" resultType="java.lang.Long">
+        SELECT id
+        FROM alf_store
+        WHERE protocol='workspace' AND identifier='SpacesStore'
+    </select>
+
+    <select id="select_IsIndexedPropertyId" resultType="java.lang.Long">
+        SELECT alf_qname.id
+        FROM alf_qname, alf_namespace
+        WHERE alf_qname.ns_id = alf_namespace.id
+          AND alf_qname.local_name = 'isIndexed'
+          AND alf_namespace.uri = 'http://www.alfresco.org/model/content/1.0'
+    </select>
+
+    <select id="select_Documents" resultType="java.lang.String">
+        SELECT uuid
+        FROM alf_node
+        WHERE alf_node.store_id = #{spacesStoreId}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM alf_node_properties
+            WHERE alf_node_properties.node_id = alf_node.id
+              AND alf_node_properties.qname_id = #{isIndexedPropertyId}
+          )
+        ORDER BY id
+        OFFSET #{skipCount}
+        LIMIT #{maxItems}
+    </select>
+
+    <select id="count_Documents" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM alf_node
+        WHERE alf_node.store_id = #{spacesStoreId}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM alf_node_properties
+            WHERE alf_node_properties.node_id = alf_node.id
+              AND alf_node_properties.qname_id = #{isIndexedPropertyId}
+          )
+    </select>
+
+</mapper>

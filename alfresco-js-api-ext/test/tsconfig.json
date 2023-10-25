@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "noEmit": false,
+        "baseUrl": "../src",
+    },
+    "exclude": [
+        "performance",
+        "integration"
+    ]
+}
